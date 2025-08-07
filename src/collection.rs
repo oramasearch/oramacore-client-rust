@@ -126,9 +126,9 @@ impl CollectionsNamespace {
     }
 
     /// Get collection statistics
-    pub async fn get_stats(&self, collection_id: &str) -> Result<serde_json::Value> {
+    pub async fn get_stats(&self) -> Result<serde_json::Value> {
         let request = ClientRequest::<()>::get(
-            format!("/v1/collections/{}/stats", collection_id),
+            format!("/v1/collections/{}/stats", self.collection_id),
             Target::Reader,
             ApiKeyPosition::QueryParams,
         );

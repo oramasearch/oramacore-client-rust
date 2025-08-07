@@ -87,6 +87,8 @@ pub struct AnswerConfig {
     pub max_documents: Option<u32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ragat_notation: Option<String>,
+    #[serde(rename = "LLMConfig", skip_serializing_if = "Option::is_none")]
+    pub llm_config: Option<LlmConfig>,
 }
 
 /// Interaction state for conversations
@@ -591,6 +593,11 @@ impl OramaCoreStream {
             config.session_id = Some(self.session_id.clone());
         }
 
+        // Use session's LLM config if none is provided in the request
+        if config.llm_config.is_none() {
+            config.llm_config = self.llm_config.clone();
+        }
+
         config
     }
 
@@ -711,6 +718,7 @@ impl AnswerConfig {
             min_similarity: None,
             max_documents: None,
             ragat_notation: None,
+            llm_config: None,
         }
     }
 
@@ -765,6 +773,12 @@ impl AnswerConfig {
     /// Set RAGAT notation
     pub fn with_ragat_notation<S: Into<String>>(mut self, notation: S) -> Self {
         self.ragat_notation = Some(notation.into());
+        self
+    }
+
+    /// Set LLM configuration
+    pub fn with_llm_config(mut self, config: LlmConfig) -> Self {
+        self.llm_config = Some(config);
         self
     }
 }
