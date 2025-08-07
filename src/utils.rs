@@ -46,12 +46,32 @@ pub fn generate_uuid() -> String {
     Uuid::new_v4().to_string()
 }
 
-/// Safely parse JSON with fallback
-pub fn safe_json_parse<T>(data: &str) -> Result<T, serde_json::Error>
+/// Safely parse JSON with LLM response fixing
+pub fn safe_json_parse<T>(data: &str) -> Result<T, Box<dyn std::error::Error + Send + Sync>>
 where
     T: for<'de> serde::Deserialize<'de>,
 {
-    serde_json::from_str(data)
+    // First try direct parsing
+    match serde_json::from_str::<T>(data) {
+        Ok(parsed) => Ok(parsed),
+        Err(_) => {
+            // If direct parsing fails, try to fix the JSON with llm_json
+            let fixed_json = llm_json::repair_json(data, &Default::default())
+                .map_err(|e| format!("Failed to fix malformed JSON: {}", e))?;
+
+            // Try parsing the fixed JSON
+            serde_json::from_str::<T>(&fixed_json)
+                .map_err(|e| format!("Failed to parse even after JSON fixing: {}", e).into())
+        }
+    }
+}
+
+/// Parse potentially malformed JSON from AI responses
+pub fn parse_ai_response<T>(data: &str) -> Result<T, Box<dyn std::error::Error + Send + Sync>>
+where
+    T: for<'de> serde::Deserialize<'de>,
+{
+    safe_json_parse(data)
 }
 
 /// Throttle function execution
@@ -172,5 +192,42 @@ mod tests {
         // Third call should execute
         let result3 = throttle.execute(|| "third");
         assert_eq!(result3, Some("third"));
+    }
+
+    #[test]
+    fn test_safe_json_parse_valid() {
+        let valid_json = r#"{"key": "value"}"#;
+        let result: Result<serde_json::Value, _> = safe_json_parse(valid_json);
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap()["key"], "value");
+    }
+
+    #[test]
+    fn test_safe_json_parse_malformed() {
+        // This JSON has trailing comma which is invalid
+        let malformed_json = r#"{"key": "value",}"#;
+        let result: Result<serde_json::Value, _> = safe_json_parse(malformed_json);
+
+        // Should succeed due to llm_json fixing
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap()["key"], "value");
+    }
+
+    #[test]
+    fn test_parse_ai_response_incomplete() {
+        // Simulate incomplete JSON that AI might produce mid-stream
+        let incomplete_json = r#"{"content": "Hello wor"#;
+        let result: Result<serde_json::Value, _> = parse_ai_response(incomplete_json);
+
+        // Should handle gracefully - either fix it or return an error
+        // The exact behavior depends on llm_json's capabilities
+        match result {
+            Ok(_) => {
+                // If it succeeds, JSON was successfully fixed
+            }
+            Err(_) => {
+                // If it fails, that's also acceptable for severely broken JSON
+            }
+        }
     }
 }

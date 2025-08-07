@@ -105,7 +105,10 @@ impl OramaClient {
             });
         }
 
-        let result = response.json().await?;
+        // Use robust JSON parsing for API responses
+        let text = response.text().await?;
+        let result = crate::utils::safe_json_parse::<R>(&text)
+            .map_err(|e| OramaError::generic(&format!("Failed to parse API response: {}", e)))?;
         Ok(result)
     }
 
@@ -150,6 +153,11 @@ impl OramaClient {
     /// Get the underlying reqwest client
     pub fn inner(&self) -> &ReqwestClient {
         &self.client
+    }
+
+    /// Get authentication reference for a target
+    pub async fn get_auth_ref(&self, target: Target) -> Result<crate::auth::AuthRef> {
+        self.auth.get_ref(target).await
     }
 }
 

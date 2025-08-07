@@ -40,6 +40,9 @@ url = "2.5"
 # Optional: Enhanced JSON performance
 # simd-json = { version = "0.13", optional = true }
 
+# LLM JSON parsing for potentially malformed responses
+llm_json = "1.0"
+
 # Optional: Tracing support
 tracing = { version = "0.1", optional = true }
 tracing-subscriber = { version = "0.3", optional = true }
@@ -52,7 +55,7 @@ env_logger = "0.10"
 log = "0.4"
 
 [features]
-default = []
+default = ["tracing"]
 # Enhanced performance with SIMD JSON
 # simd = ["simd-json"]
 # Tracing support for debugging and monitoring
