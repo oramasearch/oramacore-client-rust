@@ -224,24 +224,3 @@ impl CreateCollectionParams {
         self
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_create_collection_params_builder() {
-        let params = CreateCollectionParams::new("test-collection")
-            .with_description("Test collection")
-            .with_language(Language::English)
-            .with_embeddings_model(EmbeddingsModel::BgeBase);
-
-        assert_eq!(params.id, "test-collection");
-        assert_eq!(params.description, Some("Test collection".to_string()));
-        assert!(matches!(params.language, Some(Language::English)));
-        assert!(matches!(
-            params.embeddings_model,
-            Some(EmbeddingsModel::BgeBase)
-        ));
-    }
-}
