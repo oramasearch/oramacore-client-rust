@@ -5,7 +5,7 @@ use oramacore_client::{
     collection::{ClusterConfig, CollectionManager, CollectionManagerConfig},
     error::Result,
     manager::{CreateCollectionParams, OramaCoreManager, OramaCoreManagerConfig},
-    types::{EmbeddingsModel, Language, LlmConfig, LlmProvider, SearchMode},
+    types::{EmbeddingsModel, Language, SearchMode},
 };
 use serde::{Deserialize, Serialize};
 use std::env;
@@ -224,7 +224,7 @@ async fn main() -> Result<()> {
     // Get collection statistics
     let stats = collection_client
         .collections
-        .get_stats(&new_collection.id)
+        .get_stats()
         .await?;
     println!("📊 Collection Statistics:");
     println!("{}", serde_json::to_string_pretty(&stats)?);

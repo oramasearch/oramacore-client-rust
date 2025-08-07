@@ -33,14 +33,12 @@ async fn main() -> Result<()> {
         user_id: Some("user-123".to_string()),
     };
 
-    let nlp_results = client.ai.nlp_search::<Document>(&nlp_params).await?;
+    let nlp_results = client.ai.nlp_search::<Document>(nlp_params).await?;
     println!("NLP search found {} results", nlp_results.len());
 
     for (i, result) in nlp_results.iter().enumerate() {
-        println!("{}. {}", i + 1, result.answer);
-        if let Some(sources) = &result.sources {
-            println!("   Sources: {} documents", sources.len());
-        }
+        println!("{}. Generated query: {:?}", i + 1, result.generated_query);
+        println!("   Found {} results", result.results.len());
     }
 
     // Example 2: Create AI Session
@@ -51,13 +49,14 @@ async fn main() -> Result<()> {
             .to_string(),
     }];
 
-    let session_config = CreateAiSessionConfig::new()
+    let _session_config = CreateAiSessionConfig::new()
         .with_llm_config(LlmConfig {
             provider: LlmProvider::OpenAI,
             model: "gpt-4".to_string(),
         })
         .with_initial_messages(initial_messages);
 
+    // Use the collection manager's method to create the session
     let ai_session = client.ai.create_ai_session().await?;
     println!("AI session created with ID: {}", ai_session.session_id());
 
@@ -84,11 +83,21 @@ async fn main() -> Result<()> {
     while let Some(chunk_result) = answer_stream.next().await {
         match chunk_result {
             Ok(chunk) => {
-                if !chunk.is_empty() {
-                    print!("{}", chunk);
-                    // Flush stdout to see streaming in real-time
-                    use std::io::{self, Write};
-                    io::stdout().flush().unwrap();
+                match chunk {
+                    oramacore_client::stream_manager::StreamChunk::Content(content) => {
+                        print!("{}", content);
+                        // Flush stdout to see streaming in real-time
+                        use std::io::{self, Write};
+                        io::stdout().flush().unwrap();
+                    },
+                    oramacore_client::stream_manager::StreamChunk::StatusUpdate(status) => {
+                        println!("\n[Status: {}]", status);
+                    },
+                    oramacore_client::stream_manager::StreamChunk::Done => {
+                        println!("\n[Stream completed]");
+                        break;
+                    },
+                    _ => {} // Ignore other chunk types for this demo
                 }
             }
             Err(e) => {
@@ -111,7 +120,7 @@ async fn main() -> Result<()> {
         println!("\n--- Turn {} ---", i + 1);
         println!("User: {}", question);
 
-        let turn_config = AnswerConfig::new(question).with_visitor_id("demo-user".to_string());
+        let turn_config = AnswerConfig::new(*question).with_visitor_id("demo-user".to_string());
 
         let response = ai_session.answer(turn_config).await?;
         println!("AI: {}", response);

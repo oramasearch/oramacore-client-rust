@@ -99,7 +99,7 @@ async fn main() -> Result<()> {
 
     // Example 6: Get collection stats
     println!("\n=== Collection Statistics ===");
-    let stats = client.collections.get_stats("your-collection-id").await?;
+    let stats = client.collections.get_stats().await?;
     println!(
         "Collection stats: {}",
         serde_json::to_string_pretty(&stats)?
