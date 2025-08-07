@@ -6,17 +6,6 @@
 
 A comprehensive Rust client for [Orama Core](https://github.com/oramasearch/oramacore) and [Orama Cloud](https://app.orama.com).
 
-## Features
-
-- 🔍 **Full-Text and Vector Search** - Hybrid search combining traditional and semantic search
-- 🤖 **AI-Powered Operations** - Natural language queries and streaming AI conversations
-- 📄 **Document Management** - CRUD operations for documents with automatic indexing
-- ☁️ **Cloud Integration** - Native support for Orama Cloud projects
-- 🔧 **Collection Management** - Create, manage, and monitor collections
-- ⚡ **Async/Await** - Built on Tokio for high-performance async operations
-- 🛡️ **Type Safety** - Comprehensive type definitions with serde serialization
-- 🔐 **Authentication** - Support for both API key and JWT authentication flows
-
 ## Installation
 
 Add this to your `Cargo.toml`:
