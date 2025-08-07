@@ -1,0 +1,79 @@
+[package]
+name = "oramacore-client"
+version = "1.2.0"
+edition = "2021"
+rust-version = "1.70"
+authors = ["Orama Team <info@orama.com>"]
+description = "Server-side Rust client for OramaCore and Orama Cloud"
+documentation = "https://docs.rs/oramacore-client"
+repository = "https://github.com/oramasearch/oramacore-client-rust"
+license = "GPL-3.0"
+keywords = ["search", "vector-database", "embeddings", "ai", "llm"]
+categories = ["api-bindings", "web-programming::http-client"]
+readme = "README.md"
+
+[dependencies]
+# Async runtime and HTTP client
+tokio = { version = "1.35", features = ["full"] }
+reqwest = { version = "0.11", features = ["json", "stream"] }
+reqwest-eventsource = "0.4"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Error handling
+thiserror = "1.0"
+anyhow = "1.0"
+
+# Async traits and utilities
+async-trait = "0.1"
+futures = "0.3"
+tokio-stream = "0.1"
+
+# UUID generation
+uuid = { version = "1.6", features = ["v4"] }
+
+# URL handling
+url = "2.5"
+
+# Optional: Enhanced JSON performance
+# simd-json = { version = "0.13", optional = true }
+
+# Optional: Tracing support
+tracing = { version = "0.1", optional = true }
+tracing-subscriber = { version = "0.3", optional = true }
+
+[dev-dependencies]
+tokio-test = "0.4"
+mockito = "1.2"
+tempfile = "3.8"
+env_logger = "0.10"
+log = "0.4"
+
+[features]
+default = []
+# Enhanced performance with SIMD JSON
+# simd = ["simd-json"]
+# Tracing support for debugging and monitoring
+tracing = ["dep:tracing", "tracing-subscriber"]
+
+[[example]]
+name = "basic_search"
+required-features = []
+
+[[example]]
+name = "document_management"
+required-features = []
+
+[[example]]
+name = "ai_session"
+required-features = []
+
+[[example]]
+name = "server_app"
+required-features = []
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
