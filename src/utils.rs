@@ -1,6 +1,7 @@
 //! Utility functions for the Orama client.
 
 use std::time::{Duration, Instant};
+
 use uuid::Uuid;
 
 /// Create a random string of specified length
@@ -22,13 +23,13 @@ pub fn create_random_string(length: usize) -> String {
 /// Format duration in milliseconds to human readable string
 pub fn format_duration(duration_ms: u64) -> String {
     if duration_ms < 1000 {
-        format!("{}ms", duration_ms)
+        format!("{duration_ms}ms")
     } else {
         let seconds = duration_ms as f64 / 1000.0;
         if seconds.fract() == 0.0 {
             format!("{}s", seconds as u64)
         } else {
-            format!("{:.1}s", seconds)
+            format!("{seconds:.1}s")
         }
     }
 }
@@ -57,11 +58,11 @@ where
         Err(_) => {
             // If direct parsing fails, try to fix the JSON with llm_json
             let fixed_json = llm_json::repair_json(data, &Default::default())
-                .map_err(|e| format!("Failed to fix malformed JSON: {}", e))?;
+                .map_err(|e| format!("Failed to fix malformed JSON: {e}"))?;
 
             // Try parsing the fixed JSON
             serde_json::from_str::<T>(&fixed_json)
-                .map_err(|e| format!("Failed to parse even after JSON fixing: {}", e).into())
+                .map_err(|e| format!("Failed to parse even after JSON fixing: {e}").into())
         }
     }
 }

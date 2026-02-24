@@ -1,12 +1,10 @@
 //! AI session example showing streaming conversations and AI operations.
 
 use futures::StreamExt;
-use oramacore_client::{
-    collection::{CollectionManager, CollectionManagerConfig, NlpSearchParams},
-    error::Result,
-    stream_manager::{AnswerConfig, CreateAiSessionConfig},
-    types::{LlmConfig, LlmProvider, Message, Role},
-};
+use oramacore_client::collection::{CollectionManager, CollectionManagerConfig, NlpSearchParams};
+use oramacore_client::error::Result;
+use oramacore_client::stream_manager::{AnswerConfig, CreateAiSessionConfig};
+use oramacore_client::types::{LlmConfig, LlmProvider, Message, Role};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -67,7 +65,7 @@ async fn main() -> Result<()> {
         .with_min_similarity(0.8);
 
     let answer = ai_session.answer(answer_config).await?;
-    println!("AI Response: {}", answer);
+    println!("AI Response: {answer}");
 
     // Example 4: Streaming AI Answer
     println!("\n=== Streaming AI Answer ===");
@@ -85,23 +83,23 @@ async fn main() -> Result<()> {
             Ok(chunk) => {
                 match chunk {
                     oramacore_client::stream_manager::StreamChunk::Content(content) => {
-                        print!("{}", content);
+                        print!("{content}");
                         // Flush stdout to see streaming in real-time
                         use std::io::{self, Write};
                         io::stdout().flush().unwrap();
-                    },
+                    }
                     oramacore_client::stream_manager::StreamChunk::StatusUpdate(status) => {
-                        println!("\n[Status: {}]", status);
-                    },
+                        println!("\n[Status: {status}]");
+                    }
                     oramacore_client::stream_manager::StreamChunk::Done => {
                         println!("\n[Stream completed]");
                         break;
-                    },
+                    }
                     _ => {} // Ignore other chunk types for this demo
                 }
             }
             Err(e) => {
-                eprintln!("\nStream error: {}", e);
+                eprintln!("\nStream error: {e}");
                 break;
             }
         }
@@ -110,7 +108,7 @@ async fn main() -> Result<()> {
 
     // Example 5: Multiple conversation turns
     println!("\n=== Multi-turn Conversation ===");
-    let questions = vec![
+    let questions = [
         "What is machine learning?",
         "How does it differ from traditional programming?",
         "Can you give me a practical example?",
@@ -118,18 +116,18 @@ async fn main() -> Result<()> {
 
     for (i, question) in questions.iter().enumerate() {
         println!("\n--- Turn {} ---", i + 1);
-        println!("User: {}", question);
+        println!("User: {question}");
 
         let turn_config = AnswerConfig::new(*question).with_visitor_id("demo-user".to_string());
 
         let response = ai_session.answer(turn_config).await?;
-        println!("AI: {}", response);
+        println!("AI: {response}");
     }
 
     // Example 6: Regenerate last response
     println!("\n=== Regenerating Last Response ===");
     let regenerated = ai_session.regenerate_last(false).await?;
-    println!("Regenerated response: {}", regenerated);
+    println!("Regenerated response: {regenerated}");
 
     // Example 7: Get conversation history
     println!("\n=== Conversation History ===");

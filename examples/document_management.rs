@@ -1,9 +1,7 @@
 //! Document management example showing CRUD operations.
 
-use oramacore_client::{
-    collection::{CollectionManager, CollectionManagerConfig, CreateIndexParams},
-    error::Result,
-};
+use oramacore_client::collection::{CollectionManager, CollectionManagerConfig, CreateIndexParams};
+use oramacore_client::error::Result;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]

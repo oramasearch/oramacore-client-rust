@@ -1,7 +1,8 @@
 //! Core types for the Orama client.
 
-use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+
+use serde::{Deserialize, Serialize};
 
 /// Type alias for generic object data
 pub type AnyObject = serde_json::Value;

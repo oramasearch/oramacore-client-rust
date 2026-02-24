@@ -1,12 +1,15 @@
 //! HTTP client for Orama API operations.
 
-use crate::auth::{Auth, Target};
-use crate::error::{OramaError, Result};
-use reqwest::{Client as ReqwestClient, Method, Response};
-use serde::{de::DeserializeOwned, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
+
+use reqwest::{Client as ReqwestClient, Method, Response};
+use serde::de::DeserializeOwned;
+use serde::Serialize;
 use url::Url;
+
+use crate::auth::{Auth, Target};
+use crate::error::{OramaError, Result};
 
 /// API key position in the request
 #[derive(Debug, Clone, PartialEq)]
@@ -100,7 +103,7 @@ impl OramaClient {
 
             return Err(match status {
                 401 => OramaError::auth("Unauthorized: are you using the correct API Key?"),
-                400 => OramaError::api(status, format!("Bad Request: {}", text)),
+                400 => OramaError::api(status, format!("Bad Request: {text}")),
                 _ => OramaError::api(status, text),
             });
         }
@@ -108,7 +111,7 @@ impl OramaClient {
         // Use robust JSON parsing for API responses
         let text = response.text().await?;
         let result = crate::utils::safe_json_parse::<R>(&text)
-            .map_err(|e| OramaError::generic(&format!("Failed to parse API response: {}", e)))?;
+            .map_err(|e| OramaError::generic(format!("Failed to parse API response: {e}")))?;
         Ok(result)
     }
 

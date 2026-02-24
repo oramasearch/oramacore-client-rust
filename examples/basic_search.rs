@@ -1,10 +1,8 @@
 //! Basic search example showing how to perform searches with the Orama client.
 
-use oramacore_client::{
-    collection::{CollectionManager, CollectionManagerConfig},
-    error::Result,
-    types::{SearchMode, SearchParams},
-};
+use oramacore_client::collection::{CollectionManager, CollectionManagerConfig};
+use oramacore_client::error::Result;
+use oramacore_client::types::{SearchMode, SearchParams};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]

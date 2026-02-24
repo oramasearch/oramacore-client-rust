@@ -1,9 +1,11 @@
 //! Authentication handling for Orama client.
 
-use crate::error::{OramaError, Result};
+use std::sync::Arc;
+
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
+
+use crate::error::{OramaError, Result};
 
 /// JWT response from authentication endpoint
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -150,7 +152,7 @@ impl Auth {
             let text = response.text().await.unwrap_or_default();
             return Err(OramaError::api(
                 status,
-                format!("JWT request to {} failed: {}", auth_jwt_url, text),
+                format!("JWT request to {auth_jwt_url} failed: {text}"),
             ));
         }
 

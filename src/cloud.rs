@@ -1,9 +1,10 @@
 //! Orama Cloud client functionality.
 
+use serde::Serialize;
+
 use crate::collection::{ClusterConfig, CollectionManager, CollectionManagerConfig};
 use crate::error::Result;
 use crate::types::*;
-use serde::Serialize;
 
 /// Configuration for OramaCloud
 #[derive(Debug, Clone)]

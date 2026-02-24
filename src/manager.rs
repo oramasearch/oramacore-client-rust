@@ -1,13 +1,15 @@
 //! Orama Core Manager for collection management operations.
 
+use std::sync::Arc;
+
+use reqwest::Client;
+use serde::{Deserialize, Serialize};
+
 use crate::auth::{ApiKeyAuth, Auth, AuthConfig, Target};
 use crate::client::{ApiKeyPosition, ClientRequest, OramaClient};
 use crate::error::Result;
 use crate::types::*;
 use crate::utils::create_random_string;
-use reqwest::Client;
-use serde::{Deserialize, Serialize};
-use std::sync::Arc;
 
 /// Configuration for OramaCoreManager
 #[derive(Debug, Clone)]
@@ -133,7 +135,7 @@ impl CollectionNamespace {
     /// Get a specific collection
     pub async fn get(&self, collection_id: &str) -> Result<GetCollectionsResponse> {
         let request = ClientRequest::<()>::get(
-            format!("/v1/collections/{}", collection_id),
+            format!("/v1/collections/{collection_id}"),
             Target::Writer,
             ApiKeyPosition::Header,
         );

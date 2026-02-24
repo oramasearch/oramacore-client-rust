@@ -1,15 +1,17 @@
 //! Collection management and search functionality.
 
+use std::collections::HashMap;
+use std::sync::Arc;
+
+use reqwest::Client;
+use serde::{Deserialize, Serialize};
+
 use crate::auth::{ApiKeyAuth, Auth, AuthConfig, JwtAuth, Target};
 use crate::client::{ApiKeyPosition, ClientRequest, OramaClient};
 use crate::error::Result;
 use crate::stream_manager::OramaCoreStream;
 use crate::types::*;
 use crate::utils::{current_time_millis, format_duration};
-use reqwest::Client;
-use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-use std::sync::Arc;
 
 const DEFAULT_READER_URL: &str = "https://collections.orama.com";
 const DEFAULT_JWT_URL: &str = "https://app.orama.com/api/user/jwt";
@@ -46,7 +48,8 @@ pub struct CreateIndexParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub embeddings: Option<serde_json::Value>, // Can be "automatic", "all_properties", or array of strings
+    pub embeddings: Option<serde_json::Value>, /* Can be "automatic", "all_properties", or array
+                                                * of strings */
 }
 
 /// Hook configuration for insertion

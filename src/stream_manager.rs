@@ -1,18 +1,20 @@
 //! AI session streaming functionality.
 
+use std::pin::Pin;
+use std::sync::Arc;
+use std::time::Duration;
+
+use futures::stream::{Stream, StreamExt};
+use reqwest_eventsource::{Event, EventSource};
+use serde::Serialize;
+use tokio::sync::RwLock;
+use tracing::{debug, error, info, warn};
+
 use crate::auth::Target;
 use crate::client::{ApiKeyPosition, ClientRequest, OramaClient};
 use crate::error::{OramaError, Result};
 use crate::types::*;
 use crate::utils::{generate_uuid, parse_ai_response};
-use futures::stream::{Stream, StreamExt};
-use reqwest_eventsource::{Event, EventSource};
-use serde::Serialize;
-use std::pin::Pin;
-use std::sync::Arc;
-use std::time::Duration;
-use tokio::sync::RwLock;
-use tracing::{debug, error, info, warn};
 
 /// Streaming chunk types
 #[derive(Debug, Clone, PartialEq)]
@@ -311,7 +313,7 @@ impl OramaCoreStream {
         // Create EventSource
         let event_source = EventSource::new(request_builder).map_err(|e| {
             error!("Failed to create EventSource: {}", e);
-            OramaError::generic(&format!("EventSource creation failed: {}", e))
+            OramaError::generic(format!("EventSource creation failed: {e}"))
         })?;
 
         info!("Successfully created EventSource for streaming");
@@ -323,13 +325,12 @@ impl OramaCoreStream {
                 let timeout_secs = stream_timeout.as_secs();
                 error!("Stream timeout after {} seconds", timeout_secs);
                 let state_clone = state.clone();
-                let timeout_msg = format!("Stream timeout after {} seconds", timeout_secs);
+                let timeout_msg = format!("Stream timeout after {timeout_secs} seconds");
                 tokio::spawn(async move {
                     Self::mark_interaction_error(state_clone, timeout_msg).await;
                 });
-                return Err(OramaError::generic(&format!(
-                    "Stream timeout after {} seconds",
-                    timeout_secs
+                return Err(OramaError::generic(format!(
+                    "Stream timeout after {timeout_secs} seconds"
                 )));
             }
 
@@ -368,9 +369,8 @@ impl OramaCoreStream {
                     tokio::spawn(async move {
                         Self::mark_interaction_error(state_clone, error_msg).await;
                     });
-                    Err(OramaError::generic(&format!(
-                        "Stream event error: {}",
-                        event_error
+                    Err(OramaError::generic(format!(
+                        "Stream event error: {event_error}"
                     )))
                 }
             }
@@ -432,10 +432,7 @@ impl OramaCoreStream {
         })?;
 
         let base_url = &auth_ref.base_url;
-        let stream_url = format!(
-            "{}/v1/collections/{}/ai/answer/stream",
-            base_url, collection_id
-        );
+        let stream_url = format!("{base_url}/v1/collections/{collection_id}/ai/answer/stream");
 
         debug!("Creating streaming request to: {}", stream_url);
 

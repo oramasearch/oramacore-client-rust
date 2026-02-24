@@ -1,14 +1,13 @@
 //! Complete server application example using all Orama features.
 
-use oramacore_client::{
-    cloud::{CloudSearchParams, OramaCloud, ProjectManagerConfig},
-    collection::{ClusterConfig, CollectionManager, CollectionManagerConfig},
-    error::Result,
-    manager::{CreateCollectionParams, OramaCoreManager, OramaCoreManagerConfig},
-    types::{EmbeddingsModel, Language, SearchMode},
-};
-use serde::{Deserialize, Serialize};
 use std::env;
+
+use oramacore_client::cloud::{CloudSearchParams, OramaCloud, ProjectManagerConfig};
+use oramacore_client::collection::{ClusterConfig, CollectionManager, CollectionManagerConfig};
+use oramacore_client::error::Result;
+use oramacore_client::manager::{CreateCollectionParams, OramaCoreManager, OramaCoreManagerConfig};
+use oramacore_client::types::{EmbeddingsModel, Language, SearchMode};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 struct Product {
@@ -168,7 +167,7 @@ async fn main() -> Result<()> {
 
     println!("\nGetting AI recommendation...");
     let recommendation = ai_session.answer(recommendation_query).await?;
-    println!("🤖 AI Recommendation: {}", recommendation);
+    println!("🤖 AI Recommendation: {recommendation}");
 
     // ==========================================================================
     // PART 4: Cloud Operations (if available)
@@ -222,10 +221,7 @@ async fn main() -> Result<()> {
     println!("\n📊 Part 6: Analytics and Monitoring");
 
     // Get collection statistics
-    let stats = collection_client
-        .collections
-        .get_stats()
-        .await?;
+    let stats = collection_client.collections.get_stats().await?;
     println!("📊 Collection Statistics:");
     println!("{}", serde_json::to_string_pretty(&stats)?);
 
@@ -235,7 +231,7 @@ async fn main() -> Result<()> {
 
     for i in 0..5 {
         let client_clone = collection_client.clone();
-        let query = format!("search query {}", i);
+        let query = format!("search query {i}");
 
         let task = tokio::spawn(async move {
             let params = oramacore_client::types::SearchParams::new(&query).with_limit(3);
@@ -253,15 +249,12 @@ async fn main() -> Result<()> {
                 successful_searches += 1;
                 println!("   ✅ Search completed: {} results", result.hits.len());
             }
-            Ok(Err(e)) => println!("   ❌ Search failed: {}", e),
-            Err(e) => println!("   ❌ Task failed: {}", e),
+            Ok(Err(e)) => println!("   ❌ Search failed: {e}"),
+            Err(e) => println!("   ❌ Task failed: {e}"),
         }
     }
 
-    println!(
-        "📊 Performance test completed: {}/5 searches successful",
-        successful_searches
-    );
+    println!("📊 Performance test completed: {successful_searches}/5 searches successful");
 
     // ==========================================================================
     // PART 7: Cleanup
