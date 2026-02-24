@@ -89,9 +89,13 @@ impl OramaCloud {
     /// Create a new OramaCloud client
     pub async fn new(config: ProjectManagerConfig) -> Result<Self> {
         // Use CollectionManager internally with project_id as collection_id
-        let collection_config = CollectionManagerConfig::new(config.project_id, config.api_key)
-            .with_cluster(config.cluster.unwrap_or_default())
-            .with_auth_jwt_url(config.auth_jwt_url.unwrap_or_default());
+        let mut collection_config = CollectionManagerConfig::new(config.project_id, config.api_key);
+        if let Some(cluster) = config.cluster {
+            collection_config = collection_config.with_cluster(cluster);
+        }
+        if let Some(auth_jwt_url) = config.auth_jwt_url {
+            collection_config = collection_config.with_auth_jwt_url(auth_jwt_url);
+        }
 
         let client = CollectionManager::new(collection_config).await?;
 
