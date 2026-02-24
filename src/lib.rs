@@ -9,23 +9,22 @@
 //! ## Quick Start
 //!
 //! ```rust,no_run
-//! use oramacore_client::{CollectionManager, SearchParams};
+//! use oramacore_client::{CollectionManager, SearchParams, SearchResult};
+//! use oramacore_client::collection::CollectionManagerConfig;
 //!
 //! #[tokio::main]
 //! async fn main() -> Result<(), Box<dyn std::error::Error>> {
-//!     let manager = CollectionManager::new(
-//!         "your-collection-id",
-//!         "your-api-key"
-//!     ).await?;
+//!     let config = CollectionManagerConfig::new("your-collection-id", "your-api-key");
+//!     let manager = CollectionManager::new(config).await?;
 //!
-//!     let results = manager.search(&SearchParams {
+//!     let results: SearchResult<serde_json::Value> = manager.search(&SearchParams {
 //!         term: "rust programming".to_string(),
 //!         limit: Some(10),
 //!         ..Default::default()
 //!     }).await?;
 //!
 //!     println!("Found {} results", results.count);
-//!     
+//!
 //!     Ok(())
 //! }
 //! ```
